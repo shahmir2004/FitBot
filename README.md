@@ -42,3 +42,12 @@ FitBot is a Natural Language Processing (NLP) chatbot designed to generate perso
     ```
 
 ## 📂 Project Structure
+FitBot/
+├── data/ # Knowledge Base & Training Data
+├── src/ # Source Code
+│ ├── app.py # Main Interface
+│ ├── logic_engine.py # Workout Generation Logic
+│ ├── nlp_pipeline.py # Intent Classification
+│ └── llm_helper.py # Llama 3 Integration
+├── requirements.txt
+└── README.md
