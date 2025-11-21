@@ -83,6 +83,7 @@ if __name__ == "__main__":
         "Hello there",
         "I want to build muscle",
         "I have a pair of dumbbells",
+        "Hello friend",
         "I have bad knees",
         "Please give me a workout plan"
     ]
