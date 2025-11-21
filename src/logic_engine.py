@@ -34,10 +34,10 @@ class WorkoutGenerator:
         valid_exercises = []
         
         # Normalize inputs
-        user_goal = user_profile.get('goal', 'general fitness').lower()
-        user_equip = user_profile.get('equipment', 'bodyweight').lower()
-        user_injury = user_profile.get('injury', '').lower()
-        user_exp = user_profile.get('experience', 'beginner').lower()
+        user_goal = (user_profile.get('goal') or 'general fitness').lower()
+        user_equip = (user_profile.get('equipment') or 'bodyweight').lower()
+        user_injury = (user_profile.get('injury') or '').lower()
+        user_exp = (user_profile.get('experience') or 'beginner').lower()
 
         # 1. FILTRATION LOGIC
         for ex in self.exercises:

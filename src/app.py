@@ -2,55 +2,20 @@ import streamlit as st
 import time
 from nlp_pipeline import NLPEngine
 from logic_engine import WorkoutGenerator
+from llm_helper import LLMInterface # <--- IMPORT NEW MODULE
 
-# --- PAGE CONFIGURATION (Must be first) ---
-st.set_page_config(page_title="FitBot Pro", page_icon="💪", layout="centered")
+# --- PAGE CONFIGURATION ---
+st.set_page_config(page_title="FitBot Pro + Llama3", page_icon="🤖", layout="centered")
 
-# --- CUSTOM CSS FOR MODERN UI ---
+# --- CSS STYLING ---
 st.markdown("""
 <style>
-    /* Main Background */
-    .stApp {
-        background-color: #0e1117;
-        color: #ffffff;
-    }
-    
-    /* Chat Input Styling */
-    .stTextInput input {
-        color: #ffffff;
-        background-color: #262730;
-        border-radius: 20px;
-        border: 1px solid #4e4e4e;
-    }
-    
-    /* Card Styling for Workout Plan */
-    .workout-card {
-        background-color: #1f2937;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        margin-bottom: 15px;
-        border-left: 5px solid #00c853;
-    }
-    
-    .exercise-item {
-        background-color: #374151;
-        padding: 10px;
-        border-radius: 8px;
-        margin: 5px 0;
-        display: flex;
-        justify_content: space-between;
-    }
-    
-    h1, h2, h3 {
-        font-family: 'Helvetica Neue', sans-serif;
-        font-weight: 700;
-    }
-    
-    .highlight {
-        color: #00c853;
-        font-weight: bold;
-    }
+    .stApp { background-color: #0e1117; color: #ffffff; }
+    .stTextInput input { color: #ffffff; background-color: #262730; border-radius: 20px; }
+    .workout-card { background-color: #1f2937; padding: 20px; border-radius: 15px; border-left: 5px solid #00c853; margin-bottom: 15px; }
+    .exercise-item { background-color: #374151; padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify_content: space-between; }
+    .highlight { color: #00c853; font-weight: bold; }
+    .ai-commentary { font-style: italic; color: #a7f3d0; border-left: 2px solid #a7f3d0; padding-left: 10px; margin-bottom: 15px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -58,72 +23,57 @@ st.markdown("""
 @st.cache_resource
 def load_engines():
     nlp = NLPEngine()
-    nlp.train() # Train on startup
+    nlp.train()
     logic = WorkoutGenerator()
-    return nlp, logic
+    llm = LLMInterface() # <--- Initialize LLM
+    return nlp, logic, llm
 
-nlp_bot, logic_bot = load_engines()
+nlp_bot, logic_bot, llm_bot = load_engines()
 
-# --- SESSION STATE MANAGEMENT ---
-# This keeps memory of the conversation
+# --- SESSION STATE ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
-        {"role": "assistant", "content": "Hello! I'm FitBot. I can design a custom workout for you. Tell me your goal (e.g., lose weight, build muscle) to get started!"}
+        {"role": "assistant", "content": "Hello! I'm FitBot (powered by Llama 3). What's your fitness goal today?"}
     ]
 
 if "user_profile" not in st.session_state:
     st.session_state.user_profile = {
-        "goal": None,
-        "equipment": None,
-        "injury": None,
-        "experience": "beginner"
+        "goal": None, "equipment": None, "injury": "", "experience": "beginner"
     }
 
-# --- HELPER FUNCTION: DIALOGUE MANAGER ---
+# --- MAIN LOGIC ---
 def determine_response(user_text):
-    # 1. Understand User
+    # 1. Understand User (NLP Layer)
     analysis = nlp_bot.process(user_text)
     intent = analysis['intent']
     entities = analysis['entities']
     
-    # 2. Update Context/Memory
-    if "GOAL" in entities:
-        st.session_state.user_profile['goal'] = entities['GOAL']
-    if "EQUIPMENT" in entities:
-        st.session_state.user_profile['equipment'] = entities['EQUIPMENT']
-    if "INJURY" in entities:
-        st.session_state.user_profile['injury'] = entities['INJURY']
-    if "EXPERIENCE" in entities:
-        st.session_state.user_profile['experience'] = entities['EXPERIENCE']
+    # Update Context
+    for key, value in entities.items():
+        st.session_state.user_profile[key.lower()] = value
 
-    # 3. Decide Next Step (State Machine)
     profile = st.session_state.user_profile
     
-    # Scenario A: User wants to reset/restart
+    # 2. Scenario: Greeting or Reset
     if intent == "greeting":
-        return "Hey there! Ready to work out? Tell me your main fitness goal."
+        return llm_bot.chat(user_text) # Let LLM handle hello/hi
+
+    # 3. Scenario: Generate Workout
+    # We check if we have enough info to generate a plan
+    if (intent == "request_workout" or (profile['goal'] and profile['equipment'])):
         
-    # Scenario B: Missing Goal
-    if not profile['goal']:
-        return "I can help with that. First, what is your primary goal? (e.g., Muscle Gain, Fat Loss)"
-    
-    # Scenario C: Missing Equipment (Assume 'none' if not stated, but asking is better for UX)
-    if not profile['equipment']:
-        return f"Got it, we are focusing on **{profile['goal']}**. What equipment do you have access to? (e.g., Dumbbells, Gym, or just Bodyweight)"
-        
-    # Scenario D: Ready to Generate
-    # If we have Goal + Equipment, we can generate (Injury/Exp are optional/defaulted)
-    if intent == "request_workout" or (profile['goal'] and profile['equipment']):
-        
-        # Generate Plan
+        # A. Generate Logic-Based Plan (The Safety Layer)
         plan = logic_bot.generate_workout(profile)
         
-        # Format the Output nicely using HTML/Markdown
+        # B. Generate AI Commentary (The Personality Layer)
+        ai_intro = llm_bot.narrate_workout(plan, profile)
+
+        # C. Construct UI
         response_md = f"""
+        <div class="ai-commentary">💡 {ai_intro}</div>
         <div class="workout-card">
             <h3>🏋️ Custom {plan['goal'].title()} Plan</h3>
-            <p><strong>Equipment:</strong> {profile['equipment'].title()} <br>
-            <strong>Focus:</strong> {profile['experience'].title()}</p>
+            <p style="color: #9ca3af; font-size: 0.9em;">Designed for: {profile['experience'].title()} | Equip: {profile['equipment'].title()}</p>
             <hr style="border-color: #4b5563;">
         """
         
@@ -133,26 +83,25 @@ def determine_response(user_text):
                 <span><strong>{ex['exercise']}</strong></span>
                 <span class="highlight">{ex['sets']} x {ex['reps']}</span>
             </div>
-            <div style="font-size: 0.8em; color: #9ca3af; margin-bottom: 10px;">
-                Rest: {ex['rest']} | Note: {ex['notes']}
-            </div>
             """
-        
         response_md += "</div>"
         
-        # Clear state to allow new workout generation next time (optional)
-        # st.session_state.user_profile['goal'] = None 
-        
+        # Optional: Reset context slightly to allow follow-up questions
         return response_md
 
-    return "I'm listening. Tell me more about your fitness goals or equipment."
+    # 4. Scenario: Still gathering info
+    # If we don't have a plan yet, ask the LLM to politely ask for the missing info
+    if not profile['goal']:
+        return llm_bot.chat(user_text, system_instruction="User just spoke. They haven't set a fitness goal yet. Ask them what their goal is.")
+    
+    if not profile['equipment']:
+        return llm_bot.chat(user_text, system_instruction=f"User wants to do {profile['goal']}. Ask them what equipment they have available.")
 
-# --- MAIN UI LAYOUT ---
+    return llm_bot.chat(user_text)
 
-st.title("FitBot Pro 💪")
-st.markdown("Your AI Personal Trainer")
+# --- UI RENDERING ---
+st.title("FitBot Pro ⚡")
 
-# Display Chat History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         if message["role"] == "assistant":
@@ -160,29 +109,27 @@ for message in st.session_state.messages:
         else:
             st.markdown(message["content"])
 
-# Chat Input Area
-if prompt := st.chat_input("Type here (e.g., 'I have dumbbells and want to build muscle')"):
-    # 1. User Message
+if prompt := st.chat_input("Type here..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # 2. Bot Response (with Loading effect)
     with st.chat_message("assistant"):
-        with st.spinner("Thinking..."):
-            time.sleep(0.5) # Simulate processing time for realism
+        with st.spinner("Analyzing..."):
             response = determine_response(prompt)
             st.markdown(response, unsafe_allow_html=True)
             
     st.session_state.messages.append({"role": "assistant", "content": response})
 
-# --- SIDEBAR FOR DEBUGGING/INFO ---
+# --- SIDEBAR ---
 with st.sidebar:
-    st.header("Current Context")
-    st.write("The bot currently knows this about you:")
+    st.header("🧠 Brain Info")
+    st.write("Model: **Llama 3 (via Groq)**")
+    st.write("Strategy: **RAG (Rule + LLM)**")
+    st.divider()
+    st.write("Context:")
     st.json(st.session_state.user_profile)
-    
-    if st.button("Reset Conversation"):
-        st.session_state.user_profile = {"goal": None, "equipment": None, "injury": None, "experience": "beginner"}
-        st.session_state.messages = [{"role": "assistant", "content": "Conversation reset. What is your goal?"}]
+    if st.button("Reset Chat"):
+        st.session_state.user_profile = {"goal": None, "equipment": None, "injury": "", "experience": "beginner"}
+        st.session_state.messages = []
         st.rerun()
