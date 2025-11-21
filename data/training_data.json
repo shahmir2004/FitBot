@@ -1,0 +1,92 @@
+[
+  {
+    "text": "Hello",
+    "intent": "greeting",
+    "entities": []
+  },
+  {
+    "text": "Hi there",
+    "intent": "greeting",
+    "entities": []
+  },
+  {
+    "text": "I want to lose weight",
+    "intent": "set_goal",
+    "entities": [
+      {"label": "GOAL", "value": "lose weight"}
+    ]
+  },
+  {
+    "text": "My goal is muscle gain",
+    "intent": "set_goal",
+    "entities": [
+      {"label": "GOAL", "value": "muscle gain"}
+    ]
+  },
+  {
+    "text": "I want to get strong",
+    "intent": "set_goal",
+    "entities": [
+      {"label": "GOAL", "value": "strong"}
+    ]
+  },
+  {
+    "text": "I have dumbbells",
+    "intent": "provide_equipment",
+    "entities": [
+      {"label": "EQUIPMENT", "value": "dumbbells"}
+    ]
+  },
+  {
+    "text": "I only have a barbell",
+    "intent": "provide_equipment",
+    "entities": [
+      {"label": "EQUIPMENT", "value": "barbell"}
+    ]
+  },
+  {
+    "text": "I don't have any equipment",
+    "intent": "provide_equipment",
+    "entities": [
+      {"label": "EQUIPMENT", "value": "none"}
+    ]
+  },
+  {
+    "text": "I have bad knees",
+    "intent": "set_constraint",
+    "entities": [
+      {"label": "INJURY", "value": "knees"}
+    ]
+  },
+  {
+    "text": "I have lower back pain",
+    "intent": "set_constraint",
+    "entities": [
+      {"label": "INJURY", "value": "lower back"}
+    ]
+  },
+  {
+    "text": "I am a beginner",
+    "intent": "set_experience",
+    "entities": [
+      {"label": "EXPERIENCE", "value": "beginner"}
+    ]
+  },
+  {
+    "text": "I am advanced",
+    "intent": "set_experience",
+    "entities": [
+      {"label": "EXPERIENCE", "value": "advanced"}
+    ]
+  },
+  {
+    "text": "Give me a workout plan",
+    "intent": "request_workout",
+    "entities": []
+  },
+  {
+    "text": "Generate a routine for me",
+    "intent": "request_workout",
+    "entities": []
+  }
+]
