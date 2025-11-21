@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "name": "Bodyweight Squat",
+    "type": "Strength",
+    "muscle_group": ["Legs", "Glutes", "Core"],
+    "equipment": ["Bodyweight"],
+    "difficulty": "Beginner",
+    "primary_goals": ["General Fitness", "Endurance", "Fat Loss"],
+    "contraindications": ["Severe Knee Pain"]
+  },
+  {
+    "id": 2,
+    "name": "Push-Up",
+    "type": "Strength",
+    "muscle_group": ["Chest", "Triceps", "Shoulders", "Core"],
+    "equipment": ["Bodyweight"],
+    "difficulty": "Beginner",
+    "primary_goals": ["General Fitness", "Endurance", "Hypertrophy"],
+    "contraindications": ["Wrist Pain", "Shoulder Impingement"]
+  },
+  {
+    "id": 3,
+    "name": "Dumbbell Goblet Squat",
+    "type": "Strength",
+    "muscle_group": ["Legs", "Glutes"],
+    "equipment": ["Dumbbells"],
+    "difficulty": "Intermediate",
+    "primary_goals": ["Hypertrophy", "Strength"],
+    "contraindications": ["Lower Back Pain", "Knee Pain"]
+  },
+  {
+    "id": 4,
+    "name": "Plank",
+    "type": "Core",
+    "muscle_group": ["Core", "Abs"],
+    "equipment": ["Bodyweight"],
+    "difficulty": "Beginner",
+    "primary_goals": ["General Fitness", "Stability"],
+    "contraindications": ["Lower Back Pain"]
+  },
+  {
+    "id": 5,
+    "name": "Dumbbell Bench Press",
+    "type": "Strength",
+    "muscle_group": ["Chest", "Triceps", "Shoulders"],
+    "equipment": ["Dumbbells", "Bench"],
+    "difficulty": "Intermediate",
+    "primary_goals": ["Hypertrophy", "Strength"],
+    "contraindications": ["Shoulder Injury"]
+  },
+  {
+    "id": 6,
+    "name": "Burpees",
+    "type": "Cardio",
+    "muscle_group": ["Full Body"],
+    "equipment": ["Bodyweight"],
+    "difficulty": "Advanced",
+    "primary_goals": ["Fat Loss", "Endurance"],
+    "contraindications": ["Knee Pain", "Back Pain", "High Blood Pressure"]
+  },
+  {
+    "id": 7,
+    "name": "Deadlift",
+    "type": "Strength",
+    "muscle_group": ["Back", "Hamstrings", "Glutes"],
+    "equipment": ["Barbell"],
+    "difficulty": "Advanced",
+    "primary_goals": ["Strength", "Hypertrophy"],
+    "contraindications": ["Lower Back Pain"]
+  },
+  {
+    "id": 8,
+    "name": "Jumping Jacks",
+    "type": "Cardio",
+    "muscle_group": ["Full Body"],
+    "equipment": ["Bodyweight"],
+    "difficulty": "Beginner",
+    "primary_goals": ["Fat Loss", "Warm-up"],
+    "contraindications": ["Joint Pain", "Knee Pain"]
+  }
+]
